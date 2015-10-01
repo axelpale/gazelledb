@@ -2,12 +2,13 @@
 
 import os
 import re
+from time import time as unix_timestamp
 from pymongo import MongoClient
 
 import sys
 dup = os.path.dirname
-project_root = dup(dup(dup(__file__)))
-gazedata_root = os.path.join(project_root, 'gazedata')
+project_root = dup(dup(__file__))
+gazedata_root = '/Users/xeli/Dropbox/build/icl-trial-variability/gazedata'
 sys.path.append(gazedata_root)
 from igazelib import loadjson, loadCsvAsJson
 from igazelib import gazedata, protocol as pr
@@ -19,6 +20,9 @@ fileregexp = 'cg(\d+)_(\d+[a-z]?)_childcogn_(\d)m(NoCalib)?_SRT(\d)'
 patt = re.compile(fileregexp)
 # Database client
 mongo = MongoClient() # Default port @ localhost
+# Clear db
+mongo.drop_database('gazelle')
+# Initialize db
 db = mongo.gazelle
 
 # Config data (trial description)
@@ -96,9 +100,14 @@ def tobii_to_gazelle(tobii_gazepoint):
 	}
 
 # For each gazedata file
+i = 0
 for file in os.listdir(source_dir):
 	if not file.endswith('.gazedata'):
 		continue
+
+	# if i > 1:
+	# 	break
+	# i += 1
 
 	# Open file
 	source_path = os.path.join(source_dir, file)
@@ -124,7 +133,7 @@ for file in os.listdir(source_dir):
 		aoi_xy = gazedata.getTargetLocation(relevant_g, aoi_rects)
 
 		trial_num = gazedata.getTrialNumber(trial)
-		trial_num_str = str(trial_num)
+		trial_num_str = str(trial_num).zfill(2)
 		age_str = str(meta['participant_age_months']) + 'mo'
 
 		# Normalize gazepoints
@@ -133,35 +142,37 @@ for file in os.listdir(source_dir):
 		name_root = '/'.join([
 			'icl',
 			'cg',
+			'person',
 			meta['participant_id'],
+			'age',
 			age_str,
+			'method',
 			meta['method_version'],
+			meta['trial_configuration_id'].lower(),
+			'trial',
 			trial_num_str,
 		])
 
 		# Target first second
 		# When queried, will return the referenced data
 		db.nodes.insert_one({
-			'name': '/'.join([name_root, 'target', '1000', '']),
+			'name': '/'.join([name_root, 'saccade', '']),
+			'timestamp': int(unix_timestamp()),
+			'format': 'gazelle/v1/saccade/',
 			'meta': {
-				'description': 'First second after target image.'
+				'description': 'Saccade analysis.',
 			},
-			'function': [
-				{
-					'name': 'select_range',
-					'input_node_name': name_root + '/',
-					'args': {
-						'start': rel_start,
-						'end': rel_end,
-					}
-				},
-			],
-			'result': None,
+			'function': ['saccade_em'],
+			'input': [name_root + '/'],
+			'input_timestamp': [], # virgin
+			'output': [], # virgin
 		})
 
 		# Data entry, leaf entry
 		db.nodes.insert_one({
 			'name': name_root + '/',
+			'timestamp': int(unix_timestamp()),
+			'format': 'gazelle/v1/gaze/simple/',
 			'meta': {
 				'date': gazedata.get_trial_date(trial),
 				'participant_id': meta['participant_id'],
@@ -173,7 +184,13 @@ for file in os.listdir(source_dir):
 				'aoi_x_rel': aoi_xy[0],
 				'aoi_y_rel': aoi_xy[1],
 				'source_file': file,
+				'tags': {
+					'target': {'range': [rel_start, -1]},
+					'saccade_window': {'range': [rel_start, rel_end]},
+				},
 			},
-			'function': None,
-			'result': norm_g,
+			'function': [],
+			'input': [],
+			'input_timestamp': [],
+			'output': norm_g,
 		})
