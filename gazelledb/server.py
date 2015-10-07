@@ -31,26 +31,51 @@ def tester():
 		'icl/cg/person/0001/age/8mo/method/8/srt1/trial/02/': {
 			't_start': 137, 't_end': 156,
 			'mse': 0.0017, 'srt': 456, 'sd': 63,
+			'em_iterations': 5,
+			'source_error': 0.0369,
+			'saccade_error': 0.0183,
+			'target_error': 0.4728,
 		},
 		'icl/cg/person/0001/age/8mo/method/8/srt1/trial/04/': {
 			't_start': 78, 't_end': 92,
 			'mse': 0.0070, 'srt': 260, 'sd': 46,
+			'em_iterations': 4,
+			'source_error': 0.0279,
+			'saccade_error': 0.0153,
+			'target_error': 2.0708,
 		},
 		'icl/cg/person/0001/age/8mo/method/8/srt2/trial/07/': {
 			't_start': 115, 't_end': 130,
 			'mse': 0.0023, 'srt': 383, 'sd': 50,
+			'em_iterations': 3,
+			'source_error': 0.0622,
+			'saccade_error': 0.0191,
+			'target_error': 0.6249,
+
 		},
 		'icl/cg/person/0001/age/8mo/method/8/srt4/trial/09/': {
 			't_start': 95, 't_end': 109,
 			'mse': 0.0024, 'srt': 316, 'sd': 46,
+			'em_iterations': 3,
+			'source_error': 0.3362,
+			'saccade_error': 0.0441,
+			'target_error': 0.3500,
 		},
 		'icl/cg/person/0002/age/8mo/method/8/srt1/trial/00/': {
 			't_start': 96, 't_end': 130,
 			'mse': 0.0223, 'srt': 320, 'sd': 113,
+			'em_iterations': 3,
+			'source_error': 3.3583,
+			'saccade_error': 0.1351,
+			'target_error': 3.2047,
 		},
 		'icl/cg/person/0002/age/8mo/method/8/srt1/trial/05/': {
 			't_start': 15, 't_end': 137,
 			'mse': 0.0359, 'srt': 50, 'sd': 406,
+			'em_iterations': 4,
+			'source_error': 0.0000,
+			'saccade_error': 10.1766,
+			'target_error': 0.5995,
 		},
 	}
 

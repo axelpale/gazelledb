@@ -1,5 +1,7 @@
+from mle import saccade_model_mle
+from utils import *
 
-def saccade_em(gazepoints, src_xy, tgt_xy):
+def saccade_model_em(gazepoints, src_xy, tgt_xy):
 	'''
 	Estimates the reaction time and duration of the saccade by
 	fitting a saccade model to the data.
@@ -57,14 +59,41 @@ def saccade_em(gazepoints, src_xy, tgt_xy):
 	t_start = min(max_t, 60) # Average SRT is about 200 ms
 	t_end = min(max_t, 70) # Average SRT is about 30 ms
 
-	# In case there is a bug
-	max_iters = 1000
-	for i in range(max_iters):
-		pass
+	# Limit iterations in case there is a bug
+	max_iters = 20
+	real_iters = 0
+	for _ in range(max_iters):
+		t_start_hat, t_end_hat, mse, src_sse, sacc_sse, tgt_sse = saccade_model_mle(g, mu_s, mu_t, t_start, t_end)
+		# Limit times so that there is at least one gazepoint.
+		# This allows determination of centroids.
+		t_start_hat = max(t_start_hat, 1)
+		t_end_hat = min(t_end_hat, max_t - 1)
+		g_source = select_points_time_to_time(g, 0, t_start_hat)
+		g_target = select_points_time_to_time(g, t_end_hat, max_t)
+		# Compute means based on windows of 100 ms before and after saccade
+		# TODO: Quite harsh
+		g_source30 = select_last_points(g_source, 30)
+		g_target30 = select_first_points(g_target, 30)
+		mu_s_hat = mean_point(g_source30)
+		mu_t_hat = mean_point(g_target30)
+		# Compute until values to estimate have converged.
+		if (mu_s_hat == mu_s and mu_t_hat == mu_t and
+			t_start_hat == t_start and t_end_hat == t_end):
+			break
+		else:
+			mu_s = mu_s_hat
+			mu_t = mu_t_hat
+			t_start = t_start_hat
+			t_end = t_end_hat
+			# The next round even keeps the values same or goes here.
+			real_iters += 1
+	if real_iters == max_iters:
+		did_converge = False
+	else:
+		did_converge = True
 
 	rt = t_start
 	dur = t_end - t_start
 	mu_src = mu_s
 	mu_tgt = mu_t
-	mlerr = 0.123456789
-	return rt, dur, mu_src, mu_tgt, mlerr
+	return rt, dur, mu_src, mu_tgt, mse, real_iters, src_sse, sacc_sse, tgt_sse, did_converge
