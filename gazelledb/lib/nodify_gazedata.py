@@ -114,6 +114,7 @@ def convert_to_trial_nodes(gazedata_path, config_path):
             age_str,
             'method',
             meta['method_version'],
+            'calib' if meta['calibration_successful'] else 'nocalib',
             meta['trial_configuration_id'].lower(),
             'trial',
             trial_num_str,
@@ -171,9 +172,9 @@ def convert_to_trial_sequence_node(saccade_nodes):
     Combine trial nodes
     '''
     if len(saccade_nodes) < 1:
-        return
+        raise Exception('Should receive at least one saccade node.')
 
-    # prototype that gives us the common meta
+    # More general name: remove trial number
     sacc_name = saccade_nodes[0]['name']
     node_name = '/'.join(sacc_name.split('/')[:-4]) + '/'
 
@@ -185,6 +186,52 @@ def convert_to_trial_sequence_node(saccade_nodes):
         'function': ['trial_sequence'],
         'function_version': [],  # virgin
         'input': map(lambda n: n['name'], saccade_nodes),
+        'input_timestamp': [],  # virgin
+        'output': [],  # virgin
+    }
+
+def convert_to_session_node(sequence_nodes):
+    '''
+    Combine sequences
+    '''
+    if len(sequence_nodes) < 1:
+        raise Exception('Should receive at least one sequence node.')
+
+    # More general name: remove SRT id
+    seq_name = sequence_nodes[0]['name']
+    node_name = '/'.join(seq_name.split('/')[:-2]) + '/'
+
+    return {
+        'name': node_name,
+        'timestamp': int(unix_timestamp()),
+        'format': 'gazelle/v1/session/simple/',
+        'meta': {},
+        'function': ['trial_session'],
+        'function_version': [],  # virgin
+        'input': map(lambda n: n['name'], sequence_nodes),
+        'input_timestamp': [],  # virgin
+        'output': [],  # virgin
+    }
+
+def convert_to_project_node(session_nodes):
+    '''
+    Combine sessions to get an aggregate of all trial sequences and trials.
+    '''
+    if len(session_nodes) < 1:
+        raise Exception('Should receive at least one session node.')
+
+    # More general name: remove method and participant
+    ses_name = session_nodes[0]['name']
+    node_name = '/'.join(ses_name.split('/')[:-8]) + '/'
+
+    return {
+        'name': node_name,
+        'timestamp': int(unix_timestamp()),
+        'format': 'gazelle/v1/project/simple/',
+        'meta': {},
+        'function': ['trial_project'],
+        'function_version': [],  # virgin
+        'input': map(lambda n: n['name'], session_nodes),
         'input_timestamp': [],  # virgin
         'output': [],  # virgin
     }

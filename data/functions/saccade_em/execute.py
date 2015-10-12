@@ -12,6 +12,7 @@ def execute(input_nodes):
 	sd = floor(dur * 1000 / 300);
 
 	return {
+		'trial_configuration_id': trial['meta']['trial_configuration_id'],
 		't_start': rt, 't_end': rt + dur,
 		'mse': floor(mse * 10000)/10000.0, 'srt': srt, 'sd': sd,
 		'em_iterations': em_iters, 'did_converge': did_converge,
