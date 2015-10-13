@@ -1,8 +1,9 @@
 
-from flask import Flask, jsonify, abort, render_template
+from flask import Flask, jsonify, request, abort, render_template
 app = Flask(__name__)
 
 from pymongo import MongoClient
+from pymongo.errors import DuplicateKeyError
 mongo = MongoClient()
 db = mongo.gazelle
 
@@ -10,6 +11,7 @@ import json
 from bson import json_util
 
 from lib import get_node
+from lib import create_node
 
 
 @app.route('/')
@@ -93,7 +95,7 @@ def tester():
 
 @app.route('/<path:node_name>', methods=['GET'])
 def node(node_name):
-	print 'Request: ' + node_name
+	print 'HTTP GET ' + node_name
 	try:
 		r = get_node.by_name_computed(db, node_name)
 	except:
@@ -106,6 +108,29 @@ def node(node_name):
 		# Remove internal data from response
 		r.pop('_id', None)
 		return json_util.dumps(r)
+
+@app.route('/<path:node_name>', methods=['PUT'])
+def insert_node(node_name):
+	print 'HTTP PUT ' + node_name
+
+	# Note: aborts with 400 if malformed JSON
+	j = request.get_json()
+
+	if 'name' in j:
+		if node_name != j['name']:
+			abort(400)
+
+	try:
+		new_node = create_node.by_prototype(j)
+		db.nodes.insert_one(new_node)
+	except DuplicateKeyError:
+		return 'Name already taken: ' + node_name, 400
+	except:
+		import traceback
+		traceback.print_exc()
+		abort(500)
+
+	return json_util.dumps(new_node), 200
 
 @app.errorhandler(404)
 def page_not_found(error):
