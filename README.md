@@ -12,6 +12,7 @@ University of Tampere
     (env)$ pip install flask
     (env)$ pip install pymongo
     (env)$ pip install numpy
+	(env)$ pip install coloredlogs
 
 ## Run
 

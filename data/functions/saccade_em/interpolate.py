@@ -9,20 +9,25 @@ def interpolate_using_previous(dictlist, keys):
 			if a key has no non-null values
 	'''
 	dl = dictlist # alias
-	ndl = [] # new dictlist
+	ndl = [] # new, interpolated dictlist
 
-	prev_nonnull = {}
+	if len(dl) < 1:
+		raise InterpolationError('Empty list cannot be interpolated')
+
+	first_nonnull = {}
 
 	# Find first non-nulls
 	for k in keys:
 		for d in dl:
 			if d[k] is not None:
-				prev_nonnull[k] = d[k]
+				first_nonnull[k] = d[k]
 				break
 
-	if len(prev_nonnull.keys()) != len(keys):
+	if len(first_nonnull.keys()) != len(keys):
 		# No good values found for every key
-		raise InterpolationError('No non-null values to interpolate against.')
+		raise InterpolationError('No non-null values to interpolate against: ' + str(first_nonnull))
+
+	prev_nonnull = first_nonnull
 
 	for d in dl:
 		nd = d.copy()

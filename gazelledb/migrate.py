@@ -30,11 +30,11 @@ sequences_per_session = {}
 
 # For each gazedata file aka trial sequence
 i = 0
-for file_name in os.listdir(source_dir):
+for file_name in sorted(os.listdir(source_dir)):
     if not file_name.endswith('.gazedata'):
         continue
 
-    # if i > 1:
+    # if i > 10:
     #     break
     # i += 1
 

@@ -11,12 +11,6 @@ from bson import json_util
 
 from lib import get_node
 
-# Enable custom node function import
-import sys, os
-dup = os.path.dirname
-env_root = dup(dup(__file__))
-sys.path.append(os.path.join(env_root, 'data'))
-
 
 @app.route('/')
 def front():
