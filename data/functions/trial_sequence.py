@@ -1,5 +1,6 @@
+from numpy import mean
 
-version = '0.2.0'
+version = '0.2.2'
 
 def execute(saccade_nodes):
 
@@ -14,8 +15,12 @@ def execute(saccade_nodes):
         else:
             nonconvergent_trials.append(node['name'])
 
+    # Average validity ratio
+    mean_validity_ratio = mean([n['output']['validity_ratio'] for n in saccade_nodes])
+
     return {
         'trial_configuration_id': trial_conf_id,
+        'mean_validity_ratio': mean_validity_ratio,
         'num_trials': len(saccade_nodes),
         'num_converged': num_converged,
         'nonconvergent_trials': nonconvergent_trials,

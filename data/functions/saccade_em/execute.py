@@ -13,8 +13,9 @@ def execute(input_nodes):
 
 	return {
 		'trial_configuration_id': trial['meta']['trial_configuration_id'],
+		'validity_ratio': trial['meta']['validity_ratio'],
 		't_start': rt, 't_end': rt + dur,
-		'mse': floor(mse * 10000)/10000.0, 'srt': srt, 'sd': sd,
+		'mse': floor(mse * 10000)/10000.0, 'saccadic_reaction_time': srt, 'saccade_duration': sd,
 		'em_iterations': em_iters, 'did_converge': did_converge,
 		'source_error': src_sse, 'saccade_error': sacc_sse, 'target_error': tgt_sse,
 	}

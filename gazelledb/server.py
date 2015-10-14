@@ -97,7 +97,7 @@ def tester():
 def node(node_name):
 	print 'HTTP GET ' + node_name
 	try:
-		r = get_node.by_name_computed(db, node_name)
+		r = get_node.by_name_computed(db, node_name, policy='init')
 	except:
 		import traceback
 		traceback.print_exc()

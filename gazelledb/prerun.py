@@ -19,7 +19,7 @@ def main():
     # By computing the nodes, the results are cached.
     policy = 'ensure'
     root_nodes = [
-        'icl/cg/',
+        'icl/cg/nonconvergent/',
     ]
     for rn in root_nodes:
         logger.info('Running ' + rn)
