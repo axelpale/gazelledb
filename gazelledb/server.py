@@ -125,6 +125,8 @@ def insert_node(node_name):
 		db.nodes.insert_one(new_node)
 	except DuplicateKeyError:
 		return 'Name already taken: ' + node_name, 400
+	except create_node.InvalidNodeCandidate as e:
+		return str(e), 400
 	except:
 		import traceback
 		traceback.print_exc()
